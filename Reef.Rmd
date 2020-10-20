@@ -1,0 +1,215 @@
+---
+title: "Coral Reef Problem Set"
+author: "Bailey Kretzler"
+date: "10/14/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+```
+#**Part A**
+
+
+### **Question 1:**
+
+![Original Flow Chart](C:/Users/kretz/Pictures/FQR_flow_chart_org.png) 
+
+
+### **Question 2:**
+
+![Group Adapted Flow Chart](C:/Users/kretz/Pictures/FQR_flow_chart_1.png) 
+
+
+### **Question 3:**
+
+
+![Parrotfish Flow Chart](C:/Users/kretz/Pictures/FQR_flow_chart_2.png) 
+
+
+*Parameter Description:*
+
+* *a* = competition between macro algae and coral
+
+* *gamma (g)* = competition between algal turf and macroalgae
+
+* *r* = competition between algal turf and coral
+
+* *d* = death rate of coral
+
+* *s* = intrinsic growth rate of parrot fish
+
+
+
+In our flow chart, the competition rate *a* is having a negative impact on Coral but a positive impact on Macroalgae. The competition rate *r* is having a negative impact on Algal Turf but a positive impact on coral. The competition rate *g* is having a negative impact on algal turf but a positive impact on Macroalgae. The death rate of coral (*d*) is having a negative impact on coral populations but a positive impact on algal turf populations as this alters their competition dynamic. If there is less coral coverage the negative impact to algal turf due to competition will be lower. Additionally, *K(C)*, the carrying capacity of the parrotfish population is related to the coral population. As the coral population increases the parrotfish population becomes increasingly limited due to the coral out-competing the algal turf and macroalgae. Alternatively, the intrinsic growth rate of the parrot fish (*s*) has a positive impact on the parrotfish population. Further, parrotfish are interacting with algal turf and macroalgae in a way that is not specified directly by a parameter. The parrotfish are dependent on the algal turf and macro algae for a food supply, meaning that as these become more scarce the parrot fish population will decline (*scarcity*). Similarly, the higher levels of parrotfish will lead to a decline in macroalgae and algal turf as a result of *predation*. 
+
+### **Questions 4&5:**
+
+```{r}
+## Loading required package: deSolve
+require(deSolve)
+# Initial values
+state <- c(P = 0.5, M = 0.25, TA = 0.25, C = 0.5)
+times <- seq(0, 100,by=0.1)
+
+# Parameters
+parameters <- c(a = 0.1,g = 0.8, r = 1.0,d = 0.44,s = 0.49)
+
+# Model
+reef <- function(t,state,parameters){
+  with(as.list(c(state,parameters)),{
+       dM <- (a*M*C) - ((P*M)/(M+TA)) + (g*M*TA)
+       dC <- (r*TA*C) - (d*C) - (a*M*C)
+       dT <- ((P*M)/(M+TA)) - (g*M*TA) - (r*TA*C) + (d*C)
+       dP <- s*P*(1 - (P/C))
+       list(c(dM, dC, dT, dP))   
+  })}
+
+
+# Solve model and plot results
+out <- ode(y = state,times=times,func=reef,parms=parameters)
+par(mfrow=c(2,2))
+plot(out[,1],out[,2],ylab='Parrotfish',xlab='time',las=1)
+plot(out[,1],out[,3],ylab='Macroalgae',xlab='time',las=1)
+plot(out[,1],out[,4],ylab='Algal turf',xlab='time',las=1)
+plot(out[,1],out[,5],ylab='Live coral',xlab='time',las=1)
+
+```
+
+*(a)*
+From these models it is apparent that in the long term increase in parrotfish populations ultimately has a positive impact on coral populations. Across time we see that both the parrot fish and coral populations increase while the algal turf and macroalgae but decrease. Eventually, the parrotfish population reaches carrying capacity and levels out. The decrease/ increase in algal turf above/below 0.44 respectively suggests that some baseline level of turf will continue to exist in order to sustain the parrot fish population. Within the 100 year time frame, coral populations do not seem to be slowing in their growth rate, while Macroalgae are virtually non-existent. The rapid increase in coral may be a fluke in the model somewhere.
+
+*(b)*
+
+The competition rate between algal turf and coral (*r*) seems to be one of the most important parameters as it determines that corals ability to outcompete the algal turf. When we decrease this parameter, the increase in coral populations is much slower and there is a benefit to algal turf populations. Further coral death (*d*) rate has large impact on all populations. Higher coral death rates result in slower growth of coral and higher levels of algal turf. Lower coral death rates result in a greater decline in algal turf and a slower decline in macro algae. Lastly, the relationship between the coral coverage and the parrotfish carrying capacity also helps regulate predation of algal turf to ensure parrotfish populations persist across generations.
+
+
+#**Part B**
+
+###**Question 6**
+
+Based on the other teams description of the social aspects of the system, it seems that coral coverage and parrotfish poopulation size are key factors in the willingness of people to get involved in coral conservation. This may be due to the perception of reef health being based on cover of coral and reef biodiversity/habitability.
+
+###**Question 7**
+
+*Parameter Description*
+
+* *a* = competition between macro algae and coral
+
+* *gamma (g)* = competition between algal turf and macroalgae
+
+* *r* = competition between algal turf and coral
+
+* *d* = death rate of coral
+
+* *s* = intrinsic growth rate of parrot fish
+
+* *sigma* parrot fish mortality via overfishing (humans)
+
+* *x* people willing to participate in conservation aka public perception
+
+* *j* rate of change in coral cover or perceived coral health
+
+* *phi* social pressure
+
+* *kappa* human population growth
+
+
+
+*State Description*
+
+* *C* Coral
+
+* *M* Macro Algae
+
+* *Tu* Algal turf
+
+* *P* Parrot Fish
+
+* *X* Engagement in conservation efforts
+
+![Combined Flow Chart](C:/Users/kretz/Pictures/Flow_chart_3.png) 
+
+In the consensus flow chart above the social parameters were added to the existing ecological flow chart. In this flow chart the state of Human engagement in conservation efforts (**X**) is interacting directly with coral coverage (**C**) and Parrotfish populations (**P**). The parameters parrotfish mortality (*sigma*) and public perception (*x*) have a positive and negative impact on **X** respectively. Conversely, *sigma* and *x* have a negative and positive impact on **P**. Human population growth (*kappa*), social pressure (*phi*) and public perception (*x*) all have positive impacts on **X**, where increases in each of these parameters will increase engagement in conservation efforts. Lastly the rate of change in coral cover (*j*) is a proxy for perceived coral health, and thus as *j* and **C** increase **x** decreases. Public perception (*x*) also positively impacts **C** as increases in **x** result in higher conservation efforts.
+
+
+###**Question 8**
+
+Generally and briefly, we thought Parrot fish were the key at first, in that humans use them as a proxy for reef health and ecosystems depend on them for balance. In the long term this would look like increased engagement in conservation when parrotfish populations are high and reefs seem healthy, and decreased engagement after recovery. This could potentially lead to ebbs and flows in the coral population, which is ultimately unsustainable. The parameters we predicted to be the most important in determining system dynamics were *sigma* and *j* as these are key connections between engagement and parrot fish population and coral coverage. Further, the parameters we determined to be of importance in the stand along ecological model (*r* and *d*) will continue to be important as they interact with perceived reef health. 
+
+###**Question 9**
+
+```{r}
+
+# Coupled socio-environmental coral reef model 
+# Created by Easton R. White
+# Edited on 7-Aug-2019
+# From Thampi et al. 2018 paper https://www.nature.com/articles/s41598-018-20341-0#Sec6
+
+require(deSolve)
+coupled_model <- function(Time, State, Pars) {
+  with(as.list(c(State, Pars)), {
+    dM <-  a*M*C - (P*M)/(M+Tu) + gamma*M*Tu
+    dC <-  r*Tu*C - d*C - a*M*C
+    dT <- (P*M)/(M+Tu) - gamma*M*Tu - r*Tu*C + d*C
+    dP <- s*P*(1 - P/C) - sigma*P*(1 - X)
+    dX <- kappa*X*(1 - X)*(-1 + j*(1 - C) - sigma*P*(1 - X) + phi*(2*X - 1))
+    return(list(c(dM,dC,dT,dP,dX)))  
+  })
+}
+
+pars <- c(a = 0.1, gamma = 0.8, r = 1.0, d = 0.44, s = .49, sigma = 0.5, kappa= 1.014, j=1.68,  phi = 0.2)
+
+yini  <- c(M = 0.05, C = 0.9, Tu = 0.05, P = 0.4, X = 0.5)
+times <- seq(0, 100, by = 0.1)
+out   <- ode(yini, times, coupled_model, pars)
+
+par(mfrow=c(1,2))
+matplot(out[ , 1], out[ , 2:5], type = "l", xlab = "time", ylab = "Percent cover",main = "Ecological dynamics", lwd = 2,ylim=c(0,1))
+legend('topright',legend = c('macroalgae','coral reef','turf algae','parrotfish'),col = c(1,2,3,4),pch = 18)
+
+matplot(out[ , 1], out[ , 6], type = "l", xlab = "time", ylab = "Fraction that are conservationists",main = "Conservation opinion", lwd = 2,ylim=c(0,1),col=5)
+
+
+
+```
+
+
+
+###**Question 10**
+
+*(a)*
+
+Using the parameters as provided in the r code it is apparent that as coral coverage and parrot fish populations decline to nearly 0 , we see an increase in conservationists. It seems, however, that at this point the populations were already reduced to a point from which they could not recover. The macro algae population continues to grow until it plateaus. The macroalgae population out competes the algal turf which becomes virtually extinct.
+
+*(b)*
+
+No one parameter seemed more impactful than the other. Some parameters, like *kappa*, had no impact on population dynamics. With most other parameters (*sigma*, *a*, *gamma*, *d*) when increased speed things up, where the decline in coral populations and increase in conservationists occur earlier in time. The parameter *r* and *s* have the opposite impact where increases seem to slow the process down, *s* eventually causes the populations to level out and stabilize. *j* and *phi* have contrasting impacts but both only have an effect on conservationists where high *j* and low *phi* result in lower numbers of conservationist. Ultimately most parameters have a similar magnitude of impact, with the exception of *kappa*, *phi* and *j*.
+
+
+#**Part C**
+
+###**Question 11**
+
+
+Our predictions identified some of the more impactful parameters but over predicted the impact *j* would have on the overall system. *r*, *d*, and *sigma* all had similar and considerable impacts on the systems dynamics but so did many other parameters. Such findings indicate that many parts of a system must be functioning and in balance for the dynamics to be consistent. Our results aligned in some ways with the original paper, such as their observation of the parameter *s* eventually leading to population equilibrium in either direction. They however, analyzed the relationship between parameters in greater detail.
+
+
+###**Question 12**
+
+
+The flow diagrams were very broad at first, with a few details being added after consulting with a partner about the whole system dynamics. We then focused in on a subsection of this flow chart, the ecological model, and the model became more detailed with specific growth, death, and competition rates being incorporated. From here we consulted with individuals who had a good understanding of the social side of the model and were able to develop a highly specified whole system diagram. This diagram in some ways looked like the initial diagram, just with specific parameters included. When talking with others it became clear that everyone thinks about flow diagrams differently in both terms of asthetics and actual connection of factors. It was really helpful to consult with others because they could add details I might have missed.
+
+
+###**Question 13**
+
+
+The limitations to the socio-ecological model we deployed is that it seems to alter the actual impact parameters might be having.For example - factors that were previously impactful in the ecological model were no longer as impactful when the social component was added it. Further it feels like a gross generalization of human behavior. Other factors would need to be incorporated in order to improve the accuracy. It is also worth noting that the model doesn't account for industrial pollutants, climate change, or other environmental factors. Some of these could be attributed to increased human populations and thus would make *kappa* have more of an impact on whole system dynamics.
+
+
+###**Question 14**
+
+It was useful to be able to generate the flow diagrams individually after discussing them. This helped me to wrap my brain around the system in a way that worked for me. I think it was less useful to have to define the parameters ourselves. I personally would have found it more beneficial to understand what the parameters were and learn to construct the function around that. I know that is maybe not the point here but it would have given me a better understanding of the system.
